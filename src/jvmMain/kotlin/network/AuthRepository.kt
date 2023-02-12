@@ -10,8 +10,8 @@ import java.util.*
 
 class AuthRepository(private val client: HttpClient, private val tokenHolder: AccessTokenHolder) {
 
-    private val clientId = "444926c86f594f46b7e05f643f89d7e7"
-    private val clientSecret = "7f9d69b034994fa28111fe2b74292d36"
+    private val clientId = "dcd66f1204424e258866a0333d1f9025"
+    private val clientSecret = "7cf252c5522f479285a8dbf16b5da7a8"
     suspend fun authorize() {
         val token = client.getAccessToken()
         tokenHolder.saveAccessToken(token)
@@ -28,7 +28,7 @@ class AuthRepository(private val client: HttpClient, private val tokenHolder: Ac
         ) {
             header(
                 HttpHeaders.Authorization,
-                "Basic" + Base64.getEncoder().encodeToString("$clientId:$clientSecret".toByteArray())
+                "Basic " + Base64.getEncoder().encodeToString("$clientId:$clientSecret".toByteArray())
             )
         }.body<AccessTokenNetworkModel>().accessToken
     }

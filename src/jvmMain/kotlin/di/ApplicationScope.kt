@@ -1,9 +1,8 @@
 package di
 
-import network.AccessTokenHolder
-import network.AuthRepository
-import network.PlaylistsNetworkDataSource
-import network.provideAuthClient
+import domain.PlaylistGenerator
+import network.*
+import view.ViewModel
 
 object ApplicationScope {
 
@@ -12,10 +11,18 @@ object ApplicationScope {
     }
 
     val authRepository by lazy {
-        AuthRepository(provideAuthClient(), tokenHolder)
+        AuthRepository(provideNoAuthClient(), tokenHolder)
     }
 
     val playlistsNetworkDataSource by lazy {
         PlaylistsNetworkDataSource(provideAuthClient())
+    }
+
+    val generator by lazy {
+        PlaylistGenerator(playlistsNetworkDataSource, authRepository)
+    }
+
+    val viewModel by lazy {
+        ViewModel(generator)
     }
 }

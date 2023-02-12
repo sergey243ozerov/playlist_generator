@@ -38,6 +38,7 @@ kotlin {
                 implementation("ch.qos.logback:logback-classic:1.4.5")
                 implementation("io.ktor:ktor-client-auth:$ktor_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+                implementation("org.jetbrains.kotlinx:dataframe:0.9.1")
             }
         }
         val jvmTest by getting
@@ -47,10 +48,37 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        buildTypes.release.proguard {
+            isEnabled.set(false)
+            configurationFiles.from(project.file("proguard-rules.pro"))
+        }
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "playlist_generator"
             packageVersion = "1.0.0"
+            outputBaseDir.set(project.buildDir.resolve("./"))
         }
     }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.guardsquare:proguard-gradle:7.2.2")
+    }
+}
+
+tasks.register<proguard.gradle.ProGuardTask>("obfuscate") {
+    val packageUberJarForCurrentOS by tasks.getting
+    dependsOn(packageUberJarForCurrentOS)
+    val files = packageUberJarForCurrentOS.outputs.files
+    injars(files)
+    outjars(files.map { file -> File(file.parentFile, "${file.nameWithoutExtension}.min.jar") })
+
+    val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
+    libraryjars("${System.getProperty("java.home")}/$library")
+
+    configuration("proguard-rules.pro")
 }

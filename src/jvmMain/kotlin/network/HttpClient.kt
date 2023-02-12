@@ -22,6 +22,7 @@ private val client by lazy {
             json(Json {
                 prettyPrint = true
                 isLenient = true
+                ignoreUnknownKeys = true
             })
         }
     }
@@ -37,11 +38,17 @@ private val authClient by lazy {
             json(Json {
                 prettyPrint = true
                 isLenient = true
+                ignoreUnknownKeys = true
             })
         }
         install(Auth) {
             bearer {
                 loadTokens {
+                    val token = ApplicationScope.tokenHolder.getAccessToken()
+                    BearerTokens(token, token)
+                }
+                refreshTokens {
+                    ApplicationScope.authRepository.authorize()
                     val token = ApplicationScope.tokenHolder.getAccessToken()
                     BearerTokens(token, token)
                 }

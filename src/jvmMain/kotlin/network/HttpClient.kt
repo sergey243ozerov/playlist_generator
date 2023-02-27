@@ -25,49 +25,13 @@ private val client by lazy {
                 ignoreUnknownKeys = true
             })
         }
-    }
-}
-
-private val authClient by lazy {
-    HttpClient(CIO) {
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
-        }
-        install(Auth) {
-            bearer {
-                loadTokens {
-                    val token = ApplicationScope.tokenHolder.getAccessToken()
-                    BearerTokens(token, token)
-                }
-                refreshTokens {
-                    ApplicationScope.authRepository.authorize()
-                    val token = ApplicationScope.tokenHolder.getAccessToken()
-                    BearerTokens(token, token)
-                }
-                sendWithoutRequest { request ->
-                    request.url.host == "accounts.spotify.com"
-                }
-            }
-        }
         defaultRequest {
-            url("https://api.spotify.com/v1/")
+            url(" https://playlist-genarator.herokuapp.com/")
         }
     }
 }
 
-fun provideAuthClient(): HttpClient {
-    return authClient
-}
-
-fun provideNoAuthClient(): HttpClient{
+fun provideNoAuthClient(): HttpClient {
     return client
 }
 

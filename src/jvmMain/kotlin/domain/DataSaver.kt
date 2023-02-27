@@ -10,17 +10,17 @@ import kotlin.time.Duration.Companion.milliseconds
 
 object DataSaver {
 
-    suspend fun saveData(path: String, generatedData: List<Pair<Track, Int>>) {
+    suspend fun saveData(path: String, generatedData: List<Track>) {
         withContext(Dispatchers.IO) {
-            val dataFrame = generatedData.mapIndexed { index, (track, times) ->
+            val dataFrame = generatedData.mapIndexed { index, track ->
                 TrackDataScheme(
                     index = index,
-                    authors = track.artists.joinToString { it.name },
+                    authors = track.artists,
                     songName = track.name,
-                    duration = track.durationMS.milliseconds.toComponents { _, minutes, seconds, _ ->
+                    duration = track.duration.milliseconds.toComponents { _, minutes, seconds, _ ->
                         "%02d:%02d".format(minutes, seconds)
                     },
-                    times = times
+                    times = track.count
                 )
             }.toDataFrame()
             dataFrame.writeExcel(path)

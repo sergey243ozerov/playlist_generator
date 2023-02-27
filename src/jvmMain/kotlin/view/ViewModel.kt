@@ -1,7 +1,7 @@
 package view
 
 import domain.DataSaver
-import domain.PlaylistGenerator
+import domain.GeneratorRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,13 +11,13 @@ import java.awt.Desktop
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-class ViewModel(private val generator: PlaylistGenerator) : CoroutineScope {
+class ViewModel(private val generator: GeneratorRepository) : CoroutineScope {
     private val _state: MutableStateFlow<ViewState> = MutableStateFlow(InputDuration(""))
     val state: StateFlow<ViewState>
         get() = _state.asStateFlow()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Unconfined + SupervisorJob()
+        get() = Dispatchers.Default + SupervisorJob()
 
     fun onDurationInput(text: String) {
         _state.value = InputDuration(text)
@@ -27,7 +27,7 @@ class ViewModel(private val generator: PlaylistGenerator) : CoroutineScope {
         val localState = _state.value as InputDuration
         launch {
             _state.value = Loading
-            val result = generator.generate(localState.durationInput.toInt())
+            val result = generator.getTracks(localState.durationInput.toInt())
             _state.value = ChooseFile(result,"")
         }
     }
